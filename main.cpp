@@ -140,6 +140,9 @@ int main() {
         SDL_SetRenderDrawColor(renderer, 20, 20, 20, 255);
         SDL_RenderClear(renderer);
 
+        //ENTITIES
+
+        //PLAYER
         SDL_Rect playerRect = {
             (int)player.x,
             (int)player.y,
@@ -147,8 +150,22 @@ int main() {
             player.height
         };
 
-        SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
+        //OBSTACLE
+        SDL_Rect obstacle ={400, 400, 100, 100};
+
+        //SDL experiment (if 2 objects collide they change colour)
+        if (SDL_HasIntersection(&playerRect, &obstacle)){
+            SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+        } else {
+            SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+        };
+        //fill rectangles with result
         SDL_RenderFillRect(renderer, &playerRect);
+        SDL_RenderFillRect(renderer, &obstacle);
+
+        //SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
+        
+
 
         SDL_RenderPresent(renderer);
 
