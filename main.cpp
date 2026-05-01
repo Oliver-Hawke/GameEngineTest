@@ -1,16 +1,25 @@
 #include <SDL2/SDL.h>
 
+//player object struct (struct = class that is public by default)
 struct Player {
     float x;
     float y;
     int width;
     int height;
     float speed;
+
+    float velocityX;
+    float velocityY;
+
+    float acceleration;
+    float friction;
 };
 
 int main() {
+    //start window maker
     SDL_Init(SDL_INIT_VIDEO);
-
+    
+    //start window
     SDL_Window* window = SDL_CreateWindow(
         "Game Testing",
         SDL_WINDOWPOS_CENTERED,
@@ -20,35 +29,42 @@ int main() {
         SDL_WINDOW_SHOWN
     );
 
+    //create renderer with pointer (renderer = paint brush)
     SDL_Renderer* renderer = SDL_CreateRenderer(
         window,
         -1,
         SDL_RENDERER_ACCELERATED
     );
 
-    Player player = {100.0f, 100.0f, 80, 80, 300.0f};
+    Player player = {100.0f, 100.0f, 80, 80, 300.0f, 0.0f, 0.0f, 3000.0f, 5.0f};
 
+    //A BIG BALL OF WIBBLY WOBBLY... TIMEY WIMEY... STUFF
     Uint32 lastTime = SDL_GetTicks();
 
     bool running = true;
     SDL_Event event;
 
     while (running) {
+        //fps logic with deltaTime method to stop the player from moving based on frames, and start moving based on time
         Uint32 currentTime = SDL_GetTicks();
         float deltaTime = (currentTime - lastTime) / 1000.0f;
         lastTime = currentTime;
-
+        
+        //if window quits, quit program
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
                 running = false;
             }
         }
 
+        //better than sdl key events to monitor multiple keys at once (diagonal movement)
         const Uint8* keys = SDL_GetKeyboardState(NULL);
 
+        //movement floats to make movement speed more manipulatable
         float moveX = 0.0f;
         float moveY = 0.0f;
 
+        //setup wasd
         if (keys[SDL_SCANCODE_W]) {
             moveY -= 1.0f;
         }
@@ -70,8 +86,39 @@ int main() {
             moveY *= 0.7071f;
         }
 
-        player.x += moveX * player.speed * deltaTime;
-        player.y += moveY * player.speed * deltaTime;
+        //movement speed physics logic (everything needs time!!!)
+
+        //add acceleration
+        player.velocityX += moveX * player.acceleration * deltaTime;
+        player.velocityY += moveY * player.acceleration * deltaTime;
+
+        //subtract friction
+        player.velocityX -= player.velocityX * player.friction * deltaTime;
+        player.velocityY -= player.velocityY * player.friction * deltaTime;
+
+        //cap speed
+        if (player.velocityX > player.speed) {
+            player.velocityX = player.speed;
+        }
+
+        if (player.velocityX < -player.speed) {
+            player.velocityX = -player.speed;
+        }
+
+        if (player.velocityY > player.speed) {
+            player.velocityY = player.speed;
+        }
+
+        if (player.velocityY < -player.speed) {
+            player.velocityY = -player.speed;
+        }
+        
+        //apply movement
+        player.x += player.velocityX * deltaTime;
+        player.y += player.velocityY * deltaTime;
+
+
+
 
         SDL_SetRenderDrawColor(renderer, 20, 20, 20, 255);
         SDL_RenderClear(renderer);
@@ -83,7 +130,7 @@ int main() {
             player.height
         };
 
-        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+        SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
         SDL_RenderFillRect(renderer, &playerRect);
 
         SDL_RenderPresent(renderer);
