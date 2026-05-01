@@ -112,10 +112,16 @@ int main() {
         if (player.velocityY < -player.speed) {
             player.velocityY = -player.speed;
         }
-        
+       
+        //log for collider (BEFORE MOVEMENT IS APPLIED!)
+        float oldX = player.x;
+        float oldY = player.y;
+
         //apply movement
         player.x += player.velocityX * deltaTime;
         player.y += player.velocityY * deltaTime;
+
+
 
         //add boundaries
         if (player.x < 0) {
@@ -153,17 +159,38 @@ int main() {
         //OBSTACLE
         SDL_Rect obstacle ={400, 400, 100, 100};
 
-        //SDL experiment (if 2 objects collide they change colour)
-        if (SDL_HasIntersection(&playerRect, &obstacle)){
-            SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-        } else {
-            SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-        };
-        //fill rectangles with result
-        SDL_RenderFillRect(renderer, &playerRect);
-        SDL_RenderFillRect(renderer, &obstacle);
+        //collider
+        bool isColliding = SDL_HasIntersection(&playerRect, &obstacle);
+        
+        if (isColliding){
+            player.x = oldX;
+            player.y = oldY;
 
-        //SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
+            player.velocityX = 0.0f;
+            player.velocityY = 0.0f;
+          
+            playerRect = {
+                (int)player.x,
+                (int)player.y,
+                player.width,
+                player.height
+            };
+            SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+            SDL_RenderFillRect(renderer, &playerRect);
+            SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+            SDL_RenderFillRect(renderer, &obstacle);
+
+        } else{
+            SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
+            SDL_RenderFillRect(renderer, &playerRect);
+            SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
+            SDL_RenderFillRect(renderer, &obstacle);
+        }
+        
+        
+
+
+        
         
 
 
