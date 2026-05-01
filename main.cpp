@@ -36,7 +36,7 @@ int main() {
         SDL_RENDERER_ACCELERATED
     );
 
-    Player player = {100.0f, 100.0f, 80, 80, 300.0f, 0.0f, 0.0f, 3000.0f, 5.0f};
+    Player player = {100.0f, 100.0f, 80, 80, 300.0f, 0.0f, 0.0f, 3000.0f, 2.0f};
 
     //A BIG BALL OF WIBBLY WOBBLY... TIMEY WIMEY... STUFF
     Uint32 lastTime = SDL_GetTicks();
@@ -116,6 +116,23 @@ int main() {
         //apply movement
         player.x += player.velocityX * deltaTime;
         player.y += player.velocityY * deltaTime;
+
+        //add boundaries
+        if (player.x < 0) {
+            player.x = 0;
+        }
+
+        if (player.y < 0) {
+            player.y = 0;
+        }
+
+        if (player.x + player.width > 1920) {
+            player.x = 1920 - player.width;
+        }
+
+        if (player.y + player.height > 1080) {
+            player.y = 1080 - player.height;
+        }
 
 
 
